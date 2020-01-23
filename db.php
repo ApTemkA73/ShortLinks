@@ -1,5 +1,5 @@
 <?php 
-require 'libs/rb.php';
+require 'rb.php';
 R::setup( 'mysql:host=localhost;dbname=short','root', '' ); 
 if ( !R::testconnection() )
 {
