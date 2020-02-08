@@ -74,6 +74,7 @@
 							<tr>
 							<td><?= $row['linkin'] ?></td>
 							<td><a href="/?go=<?= $row['linkout'] ?>">http://main.ru/?go=<?= $row['linkout'] ?></a></td>
+							<td><a href="edit.php?id=<?= $row['linkout'] ?>">Изменить</a></td>
 							<td><a href="delete.php?id=<?= $row['linkout'] ?>">Удалить</a></td>
 							</tr>
 						<?php endforeach; ?>
