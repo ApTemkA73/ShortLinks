@@ -33,31 +33,67 @@
 	}
 	
 	function generatelink($length = 5){
-		$chars = 'abdefhiknrstyzABDEFGHKNQRSTYZ23456789';
-		$numChars = strlen($chars);
-		$string = '';
-		for ($i = 0; $i < $length; $i++) {
-		$string .= substr($chars, rand(1, $numChars) - 1, 1);
+		do {	
+			$chars = 'abdefhiknrstyzABDEFGHKNQRSTYZ23456789';
+			$numChars = strlen($chars);
+			$string = '';
+			for ($i = 0; $i < $length; $i++) {
+			$string .= substr($chars, rand(1, $numChars) - 1, 1);
+			}
 		}
+		while(R::count('links', "linkout = ?", array(["$string"])) > 0);
 		return $string;
 	}
+
 	if (is_url("$link"))
 	{
 		if (check_domain_availible("$link"))
 		{
-				$genlink = generatelink(5);
-				$links = R::dispense('links');
-				$links->iduser = "000";
-				if ( isset ($_SESSION['logged_user']) )
-				{
-					$links->iduser = $_SESSION['logged_user']->id;
+				if (isset($_SESSION['logged_user']) && ($_POST['oldlink'])){
+					$oldlink = $_POST['oldlink'];
+					$searhlink = R::findOne ('links', "linkout = ?", ["$oldlink"]);
+					if($searhlink){
+						$userid = $_SESSION['logged_user']->id;
+						$searhuserid = R::findOne ('links', "linkout = ?", ["$oldlink"]);
+						$useridbylink = $searhuserid['iduser'];
+						if($userid == $useridbylink){
+							$searhlink->linkin = "$link";
+							R::store($searhlink);
+							echo json_encode(array(
+							'result' => 'Ссылка успешно изменена. <a href="mylinks.php">Вернуться к списку.</a>'
+							));
+						}
+						else
+						{
+							echo json_encode(array(
+							'result' => 'Нельзя редактировать ссылку другого пользователя.'
+							));
+						}
+					}
+					else
+					{
+							echo json_encode(array(
+							'result' => 'Ссылка которую Вы хотите изменить не найдена.'
+							));
+					}
 				}
+				else
+				{
+					$genlink = generatelink(5);
+					$links = R::dispense('links');
+					$links->iduser = "000";
+					if ( isset ($_SESSION['logged_user']) )
+					{
+						$links->iduser = $_SESSION['logged_user']->id;
+					}
 					$links->linkin = "$link";
 					$links->linkout = $genlink;
 					R::store($links);
 					echo json_encode(array(
 					'result' => 'Ссылка успешно сокращена, короткий URL:',
 					'linkout' => $genlink));
+				}
+				
 		}
 		else
 		{
@@ -74,6 +110,10 @@
 		'linkout' => '0'
 		));
 	}
+	
+		
+		//if ( isset ($_SESSION['logged_user']))
+		//	echo $_SESSION['logged_user']->id;
 
 		
 ?>
